@@ -1,0 +1,83 @@
+package ques2;
+
+
+import java.util.Random;
+
+class Sum implements Runnable{
+	int sum;
+	private Random random;
+	private boolean generated=false;
+	private int n;
+	public Sum() {
+		random=new Random();
+	}
+	
+	
+//	public Sum(int num) {
+//		this.sum = num;
+//	}
+	
+	synchronized public void generateNumber() throws InterruptedException {
+		if(generated) {
+			wait();
+		}
+		n = random.nextInt(10)+1;
+		System.out.println(Thread.currentThread().getName()+": "+n);
+		generated=true;
+		notify();
+	}
+	
+	@Override
+	public void run() {
+//		Random random = new Random();
+//		int n = random.nextInt(10)+1;
+//		synchronized(this){
+//			System.out.println(Thread.currentThread().getName()+": "+n);
+//			this.sum += n;
+//		}
+		try {
+			generateNumber();
+			getSum();
+		}catch(InterruptedException ex) {
+			ex.printStackTrace();
+		}
+	}
+	
+	synchronized public void getSum() throws InterruptedException {
+		if(!generated) {
+			wait();
+		}
+		this.sum=sum+n;
+		generated=false;
+		notify();
+		System.out.println("Sum After "+Thread.currentThread().getName()+" "+this.sum);
+	}
+	
+}
+public class Threading {
+	public static void main(String[] args) {
+		int sum=0;
+		Sum thread = new Sum();
+		Thread thread1 = new Thread(thread, "thread1");
+		Thread thread2 = new Thread(thread, "thread2");
+		Thread thread3 = new Thread(thread, "thread3");
+		Thread thread4 = new Thread(thread, "thread4");
+		Thread thread5 = new Thread(thread, "thread5");
+		thread1.start();
+		thread2.start();
+		thread3.start();
+		thread4.start();
+		thread5.start();
+		
+//		try {
+//			thread1.join();
+//			thread2.join();
+//			thread3.join();
+//			thread4.join();
+//			thread5.join();
+//			System.out.println("Sum :" + thread.sum);
+//		} catch (InterruptedException e) {
+//			e.printStackTrace();
+//		}
+	}
+}
